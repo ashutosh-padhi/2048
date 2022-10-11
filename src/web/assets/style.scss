@@ -1,0 +1,287 @@
+@use 'sass:list';
+@use 'sass:math';
+@use 'sass:string';
+
+$tile-size: 80px !default;
+$tile-margin: 5px !default;
+$app-background-enabled: false;
+$app-background-image: url('background.jpg');
+
+//@import 'themes/default.theme.scss';
+@import 'themes/tile-theme3.scss';
+
+@function textcolor($color) {
+    @if red($color) * 0.299 + green($color) * 0.587 + blue($color) * 0.114>150 {
+        @return #000;
+    } @else {
+        @return #fff;
+    }
+}
+
+@mixin tileStyle($color) {
+    background-color: $color;
+    color: textcolor($color);
+}
+
+$tile-size: $env-tile-size + 0px;
+$tile-margin: $env-tile-margin + 0px;
+$board-size: $env-matrix-size;
+$app-background-enabled: $env-background-enabled;
+$app-background-image: $env-background-image;
+
+$app-size: ($tile-size * $board-size) + $tile-margin * ($board-size + 1);
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: $game-background;
+    font-family: Verdana, sans-serif;
+    color: textcolor($game-background);
+}
+
+.action {
+    display: flex;
+    width: $app-size;
+    justify-content: space-between;
+    align-content: center;
+
+    .btn-container {
+        display: flex;
+        align-items: center;
+        $action-padding: 3px;
+        $action-size: 20px + 2 * $action-padding;
+
+        .refresh-count {
+            position: absolute;
+            text-align: center;
+            line-height: 20px;
+            top: -9px;
+            left: -9px;
+            font-size: 18px;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background-color: white;
+            box-shadow: $placeholder-shadow;
+            color: #000;
+        }
+
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: $tile-border-radius;
+            padding: $action-padding;
+            height: $action-size;
+            width: $action-size;
+            box-shadow: $placeholder-shadow;
+            margin-left: 10px;
+            cursor: pointer;
+            transform: scale(1);
+            transition: transform 0.1s;
+
+            &:hover {
+                transform: scale(1.2);
+            }
+
+            .icon {
+                height: 20px;
+                width: 20px;
+
+                svg {
+                    height: 100%;
+                    width: 100%;
+                }
+            }
+
+            &.refresh {
+                svg {
+                    fill: red;
+                }
+            }
+
+            &.back {
+                position: relative;
+
+                svg {
+                    fill: green;
+                }
+            }
+        }
+    }
+
+    .score-container {
+        display: flex;
+        align-items: flex-end;
+        flex-direction: column;
+
+        .score {
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            flex-direction: row-reverse;
+        }
+    }
+}
+
+@keyframes newtile {
+    0% {
+        transform: scale(0.5);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes movetile {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.movetile {
+    animation-name: movetile;
+    animation-duration: 0.3s;
+    animation-delay: 0.2s;
+}
+
+.newtile {
+    animation-name: newtile;
+    animation-duration: 0.15s;
+}
+
+.app {
+    box-shadow: $app-shadow;
+    border-radius: $app-border-radius;
+    min-height: $app-size;
+    min-width: $app-size;
+    position: relative;
+    background-color: $app-background;
+
+    .game-over {
+        height: $app-size;
+        width: $app-size;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: $app-border-radius;
+        z-index: 10;
+    }
+
+    .sqr-row {
+        display: flex;
+
+        &:last-child {
+            margin-bottom: $tile-margin;
+        }
+
+        .sqr {
+            box-sizing: border-box;
+            height: $tile-size;
+            width: $tile-size;
+            background-color: $placeholder-background;
+            @if $app-background-enabled {
+                background-image: $app-background-image;
+            }
+            background-repeat: no-repeat;
+            border-radius: $tile-border-radius;
+            margin-left: $tile-margin;
+            margin-top: $tile-margin;
+            box-shadow: $placeholder-shadow;
+
+            &:last-child {
+                margin-right: $tile-margin;
+            }
+        }
+    }
+
+    @for $i from 1 through $board-size {
+        @for $j from 1 through $board-size {
+            .sqr#{$i}-#{$j} {
+                background-position: $tile-margin -
+                    ($tile-margin + ($j - 1) * ($tile-size + $tile-margin))
+                    $tile-margin -
+                    ($tile-margin + ($i - 1) * ($tile-size + $tile-margin));
+            }
+        }
+    }
+
+    .tile-container {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+
+        .tile {
+            height: $tile-size;
+            width: $tile-size;
+            border-radius: $tile-border-radius;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: top #{$env-play-sensitivity}s,
+                left #{$env-play-sensitivity}s;
+        }
+
+        @for $i from 1 through $board-size {
+            @for $j from 1 through $board-size {
+                .f#{$i}-#{$j} {
+                    top: $tile-margin + ($i - 1) * ($tile-size + $tile-margin);
+                    left: $tile-margin + ($j - 1) * ($tile-size + $tile-margin);
+                }
+            }
+        }
+    }
+}
+
+@for $i from 0 through ($board-size * $board-size) {
+    $tile-value: math.pow(2, $i);
+    $value-width: string.length(#{$tile-value});
+    $list-length: list.length($tile-color);
+    $color: #000;
+
+    @if $i>=$list-length {
+        $color: list.nth($tile-color, -1);
+    } @else {
+        $color: list.nth($tile-color, $i + 1);
+    }
+
+    .t#{$i} {
+        @include tileStyle($color);
+        font-size: 44px - ($value-width * 4);
+    }
+}
+
+.credits {
+    margin-top: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.heading {
+    font-size: 50px;
+}

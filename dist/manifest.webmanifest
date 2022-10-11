@@ -1,0 +1,22 @@
+{
+    "short_name": "2048",
+    "name": "2048",
+    "description": "2048 by ashutosh padhi",
+    "icons": [
+        {
+            "src": "/2048-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/2048-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#fffdd0",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#fffdd0"
+}
